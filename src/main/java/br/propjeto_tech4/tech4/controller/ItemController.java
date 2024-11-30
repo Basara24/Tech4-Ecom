@@ -53,4 +53,13 @@ public class ItemController {
         // Retornando o objeto salvo
         return ResponseEntity.status(201).body(item);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id){
+        Item item = this.repository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Smartphone nao encontrado"));
+        this.repository.delete(item);
+        return ResponseEntity.noContent().build();
+    }
 }

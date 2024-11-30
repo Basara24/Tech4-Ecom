@@ -62,4 +62,40 @@ public class ItemController {
         this.repository.delete(item);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> update(@PathVariable Integer id, @RequestBody ItemRequestDTO dto) {
+        // Validação do preço
+        if (dto.preco() == null) {
+            return ResponseEntity.status(400).body("O preço deve ser maior que zero.");
+        }
+
+        // Validação da descrição
+        if (dto.descricao() == null || dto.descricao().trim().isEmpty()) {
+            return ResponseEntity.status(400).body("A descrição não pode estar vazia.");
+        }
+
+        // Busca do item no banco de dados
+        Item item = this.repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Item não encontrado com o ID " + id));
+
+        // Atualização dos campos
+        boolean alterado = false;
+        if (!item.getDescricao().equals(dto.descricao())) {
+            item.setDescricao(dto.descricao());
+            alterado = true;
+        }
+        if (!item.getPreco().equals(dto.preco())) {
+            item.setPreco(dto.preco());
+            alterado = true;
+        }
+
+        // Salvar somente se houve alterações
+        if (alterado) {
+            this.repository.save(item);
+        }
+
+        // Retornar resposta com status apropriado
+        return ResponseEntity.noContent().build();
+    }
 }
